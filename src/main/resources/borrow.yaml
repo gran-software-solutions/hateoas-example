@@ -1,0 +1,344 @@
+openapi: 3.0.3
+info:
+  title: Borrow API
+  version: '1.0'
+  contact:
+    name: Greg
+    email: gg@gransoftware.de
+    url: gransoftware.de
+  license:
+    name: Apache 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0'
+  description: |-
+    We all know the hassle when we borrow things to friends and then forget about them. Those items are gone forever. Trying to remember what we borrowed to whom is exhausting. But no more! With our Borrow API you will keep track of all your borrowed items. And you will never loose anything!
+
+    Try it out now to save your items from doom
+servers:
+  - url: 'https://api.example.io'
+
+paths:
+  /items:
+    get:
+      operationId: get-all-items
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: 'A list of all items you borrowed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedItems'
+              examples:
+                Example 1:
+                  value:
+                    data:
+                      - name: Blue Pen
+                        borrowee: John
+                      - name: Wireless Headphones
+                        borrowee: Tom
+                    links:
+                      first: /item?page=1&per_page=10
+                      prev: null
+                      next: /item?page=2&per_page=10
+                      last: /item?page=5&per_page=10
+    post:
+      operationId: post-an-item
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+            examples:
+              Example 1:
+                value:
+                  name: Blue Pen
+                  borrowee: John
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+              examples:
+                Example 1:
+                  value:
+                    name: Blue Pen
+                    borrowee: John
+                    links:
+                      self: /item/Blue Pen
+                      borrowee: /borrowee/John
+  /borrowees:
+    get:
+      operationId: get-all-borrowees
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBorrowees'
+              examples:
+                Example 1:
+                  value:
+                    data:
+                      - name: John
+                      - name: Tom
+                    links:
+                      first: /borrowee?page=1&per_page=10
+                      prev: null
+                      next: /borrowee?page=2&per_page=10
+                      last: /borrowee?page=3&per_page=10
+    post:
+      operationId: post-a-borrowee
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Borrowee'
+            examples:
+              Example 1:
+                value:
+                  name: John
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Borrowee'
+              examples:
+                Example 1:
+                  value:
+                    name: John
+                    links:
+                      self: /borrowee/John
+                      items: /items/by/John
+  '/item/{name}':
+    get:
+      operationId: get-an-item
+      parameters:
+        - name: name
+          schema:
+            $ref: '#/components/schemas/Item'
+          in: path
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+              examples:
+                Example 1:
+                  value:
+                    name: Blue Pen
+                    borrowee: John
+                    links:
+                      self: /item/Blue Pen
+                      borrowee: /borrowee/John
+    put:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+              examples:
+                Example 1:
+                  value:
+                    name: Blue Pen
+                    borrowee: John
+                    links:
+                      self: /item/Blue Pen
+                      borrowee: /borrowee/John
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+            examples:
+              Example 1:
+                value:
+                  name: Blue Pen
+                  borrowee: John
+    delete:
+      responses:
+        '204':
+          description: No Content
+    parameters:
+      - schema:
+          type: string
+        name: name
+        in: path
+        required: true
+  '/borrowee/{name}':
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Borrowee'
+              examples:
+                Example 1:
+                  value:
+                    name: John
+                    links:
+                      self: /borrowee/John
+                      items: /items/by/John
+    delete:
+      responses:
+        '204':
+          description: No Content
+    parameters:
+      - schema:
+          type: string
+        name: name
+        in: path
+        required: true
+  '/items/by/{name}':
+    get:
+      operationId: get-items-by-borrowee
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedItems'
+              examples:
+                Example 1:
+                  value:
+                    data:
+                      - name: Blue Pen
+                        borrowee: John
+                        links:
+                          self: /item/Blue Pen
+                          borrowee: /borrowee/John
+                      - name: Wireless Headphones
+                        borrowee: Tom
+                        links:
+                          self: /item/Wireless Headphones
+                          borrowee: /borrowee/Tom
+                    links:
+                      first: /items/by/John?page=1&per_page=10
+                      prev: null
+                      next: /items/by/John?page=2&per_page=10
+                      last: /items/by/John?page=3&per_page=10
+
+    parameters:
+      - schema:
+          type: string
+        name: name
+        in: path
+        required: true
+components:
+  schemas:
+    PaginatedItems:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+            prev:
+              type: string
+              nullable: true
+            next:
+              type: string
+              nullable: true
+            last:
+              type: string
+    Item:
+      type: object
+      properties:
+        name:
+          type: string
+        borrowee:
+          type: string
+        links:
+          type: object
+          properties:
+            self:
+              $ref: '#/components/links/item-from-name'
+            borrowee:
+              $ref: '#/components/links/borrowee-from-item'
+    Borrowee:
+      type: object
+      properties:
+        name:
+          type: string
+        links:
+          type: object
+          properties:
+            self:
+              $ref: '#/components/links/borrowee-from-name'
+            items:
+              $ref: '#/components/links/item-from-borrowee'
+    PaginatedBorrowees:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Borrowee'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+            prev:
+              type: string
+              nullable: true
+            next:
+              type: string
+              nullable: true
+            last:
+              type: string
+  links:
+    borrowee-from-item:
+      operationId: get-all-borrowees
+      parameters:
+        name: $response.body#/borrowee
+    borrowee-from-name:
+      operationId: get-all-borrowees
+      parameters:
+        name: $response.body#/name
+    item-from-name:
+      operationId: get-an-item
+      parameters:
+        name: $response.body#/name
+    item-from-borrowee:
+      operationId: get-items-by-borrowee
+      parameters:
+        name: $response.body#/name
