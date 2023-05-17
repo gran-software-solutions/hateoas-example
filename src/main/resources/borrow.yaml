@@ -197,6 +197,7 @@ paths:
         required: true
   '/borrowee/{name}':
     get:
+      operationId: get-a-borrowee
       responses:
         '200':
           description: OK
@@ -259,26 +260,6 @@ paths:
         required: true
 components:
   schemas:
-    PaginatedItems:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Item'
-        links:
-          type: object
-          properties:
-            first:
-              type: string
-            prev:
-              type: string
-              nullable: true
-            next:
-              type: string
-              nullable: true
-            last:
-              type: string
     Item:
       type: object
       properties:
@@ -305,6 +286,27 @@ components:
               $ref: '#/components/links/borrowee-from-name'
             items:
               $ref: '#/components/links/item-from-borrowee'
+
+    PaginatedItems:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+            prev:
+              type: string
+              nullable: true
+            next:
+              type: string
+              nullable: true
+            last:
+              type: string
     PaginatedBorrowees:
       type: object
       properties:
@@ -327,7 +329,7 @@ components:
               type: string
   links:
     borrowee-from-item:
-      operationId: get-all-borrowees
+      operationId: get-a-borrowee
       parameters:
         name: $response.body#/borrowee
     borrowee-from-name:
